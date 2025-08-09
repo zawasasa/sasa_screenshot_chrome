@@ -322,6 +322,11 @@ document.addEventListener('DOMContentLoaded', () => {
       saveToHistory();
     } else if (currentTool && currentTool !== 'selectTool') {
       const toolType = currentTool.replace('Tool', '');
+      // 吹き出しはテキスト先行フローのため、mousedownでは新規作成しない
+      if (toolType === 'bubble') {
+        isDrawing = false;
+        return;
+      }
       const shape = new Shape(toolType, startX, startY, currentColor, lineWidthSlider.value);
       // avatarツールの場合はドラッグで矩形を決めて後で画像をはめる（pendingがあれば）
       if (toolType === 'avatar' && pendingAvatarImage) {
@@ -388,8 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // 新しい図形の描画
       const shape = shapes[shapes.length - 1];
       if (shape) {
-        shape.width = mouseX - shape.x;
-        shape.height = mouseY - shape.y;
+        if (shape.type !== 'bubble') {
+          shape.width = mouseX - shape.x;
+          shape.height = mouseY - shape.y;
+        }
         redrawCanvas();
       }
     }
@@ -640,13 +647,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     contains(x, y) {
       const margin = this.lineWidth + 5;  // クリック判定の余白
-      
-      // 図形の範囲を計算
+      // 吹き出しは内部クリックで選択できるよう、塗り領域中心で判定
+      if (this.type === 'bubble') {
+        const left = Math.min(this.x, this.x + this.width) + margin;
+        const right = Math.max(this.x, this.x + this.width) - margin;
+        const top = Math.min(this.y, this.y + this.height) + margin;
+        const bottom = Math.max(this.y, this.y + this.height) - margin;
+        return x >= left && x <= right && y >= top && y <= bottom;
+      }
+      // 図形の範囲を計算（枠含む）
       const left = Math.min(this.x, this.x + this.width) - margin;
       const right = Math.max(this.x, this.x + this.width) + margin;
       const top = Math.min(this.y, this.y + this.height) - margin;
       const bottom = Math.max(this.y, this.y + this.height) + margin;
-      
       return x >= left && x <= right && y >= top && y <= bottom;
     }
   }
