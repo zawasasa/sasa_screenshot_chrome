@@ -30,12 +30,7 @@
 // 範囲選択モードを開始する関数
   function startAreaSelection() {
     if (overlayElement) return; // 多重開始防止
-  // カーソルを十字に強制（!important）
-  try {
-    document.body.style.setProperty('cursor', 'crosshair', 'important');
-  } catch (_) {
-    document.body.style.cursor = 'crosshair';
-  }
+  // bodyのカーソルは触らず、オーバーレイにのみ適用
   
     // 全画面オーバーレイを作成（イベント捕捉用）
     overlayElement = document.createElement('div');
@@ -208,12 +203,7 @@
       overlayElement = null;
     }
 
-  // カーソルを元に戻す
-  try {
-    document.body.style.removeProperty('cursor');
-  } catch (_) {
-    document.body.style.cursor = 'default';
-  }
+  // bodyのカーソルは変更しない
   }
 
 })();

@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           function: preparePageForCapture,
         });
 
-        // 少し待ってからキャプチャを実行
+        // 少し待ってからキャプチャを実行（レイアウト安定待ち）
         setTimeout(async () => {
           try {
             // 表示部分のスクリーンショットを撮影
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           } catch (error) {
             console.error('Capture failed:', error);
           }
-        }, 100);
+        }, 250);
       } catch (error) {
         console.error('Setup failed:', error);
       }
@@ -84,8 +84,7 @@ function preparePageForCapture() {
     y: window.scrollY
   };
 
-  // スクロールを固定
-  document.body.style.overflow = 'hidden';
+  // NOTE: body の overflow を変更すると白画面になるサイトがあるため触らない
   
   // Google DocsやSpreadsheetの特殊な要素を処理
   const specialElements = document.querySelectorAll('.docs-sheet-container, .grid-container');
@@ -101,7 +100,6 @@ function preparePageForCapture() {
 // キャプチャ後にページを元に戻す関数
 function restorePageAfterCapture() {
   // スクロールを元に戻す
-  document.body.style.overflow = '';
   if (window._originalScroll) {
     window.scrollTo(window._originalScroll.x, window._originalScroll.y);
   }
