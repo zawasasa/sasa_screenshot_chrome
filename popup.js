@@ -27,9 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       // まず既存の content.js がいるか確認（いれば再注入しない）
       const ping = () => new Promise(resolve => {
-        chrome.tabs.sendMessage(tab.id, { action: 'ping' }, response => {
-          resolve(Boolean(response && response.ok));
-        });
+        try {
+          chrome.tabs.sendMessage(tab.id, { action: 'ping' }, response => {
+            if (chrome.runtime.lastError) {
+              // 受信側がいない場合など
+              resolve(false);
+              return;
+            }
+            resolve(Boolean(response && response.ok));
+          });
+        } catch (_) {
+          resolve(false);
+        }
       });
 
       let hasContent = await ping();
