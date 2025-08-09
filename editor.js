@@ -69,6 +69,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // ツールボタンのイベントリスナー設定
   document.querySelectorAll('.tool-button').forEach(button => {
     button.addEventListener('click', () => {
+      // アクション系（選択状態を維持し、currentToolを変更しない）
+      if (button.id === 'bubbleInvert') {
+        bubbleStyleMode = bubbleStyleMode === 'light' ? 'dark' : 'light';
+        if (selectedShape && selectedShape.type === 'bubble') {
+          applyBubbleStyle(selectedShape);
+          redrawCanvas();
+          saveToHistory();
+        }
+        return;
+      }
+      if (button.id === 'bubbleTail') {
+        const order = ['down-right', 'down-left', 'up-left', 'up-right'];
+        const idx = order.indexOf(bubbleTailDir);
+        bubbleTailDir = order[(idx + 1) % order.length];
+        if (selectedShape && selectedShape.type === 'bubble') {
+          selectedShape.tailDir = bubbleTailDir;
+          redrawCanvas();
+          saveToHistory();
+        }
+        return;
+      }
+
+      // ツール系（選択を解除し、currentToolを切り替える）
       document.querySelectorAll('.tool-button').forEach(btn => {
         btn.classList.remove('active');
       });
@@ -81,25 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('avatarInput');
         input.value = '';
         input.click();
-      }
-      if (button.id === 'bubbleInvert') {
-        bubbleStyleMode = bubbleStyleMode === 'light' ? 'dark' : 'light';
-        // 既存選択バブルがあれば反映
-        if (selectedShape && selectedShape.type === 'bubble') {
-          applyBubbleStyle(selectedShape);
-          redrawCanvas();
-          saveToHistory();
-        }
-      } else if (button.id === 'bubbleTail') {
-        // しっぽの向きをトグル
-        const order = ['down-right', 'down-left', 'up-left', 'up-right'];
-        const idx = order.indexOf(bubbleTailDir);
-        bubbleTailDir = order[(idx + 1) % order.length];
-        if (selectedShape && selectedShape.type === 'bubble') {
-          selectedShape.tailDir = bubbleTailDir;
-          redrawCanvas();
-          saveToHistory();
-        }
       }
     });
   });
