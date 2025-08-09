@@ -216,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (toolType === 'avatar' && pendingAvatarImage) {
         shape._image = pendingAvatarImage;
       }
+      if (toolType === 'bubble') {
+        shape.text = 'Hello!';
+      }
       shapes.push(shape);
     }
   }
@@ -382,6 +385,18 @@ document.addEventListener('DOMContentLoaded', () => {
       this.height = 0;
       this.color = color;
       this.lineWidth = lineWidth;
+      // デフォルト値（吹き出し用）
+      if (type === 'bubble') {
+        this.text = '';
+        this.textColor = '#000000';
+        this.bgColor = 'rgba(255,255,255,0.95)';
+        this.borderColor = '#000000';
+        this.borderWidth = 2;
+        this.borderRadius = 12;
+        this.padding = 10;
+        this.fontFamily = 'Arial';
+        this.fontSize = 16;
+      }
     }
 
     draw(context) {
@@ -431,6 +446,61 @@ document.addEventListener('DOMContentLoaded', () => {
           context.closePath();
           context.fill();
           break;
+        case 'bubble': {
+          // 角丸矩形（吹き出し本体）
+          const r = Math.max(0, Math.min(this.borderRadius, Math.min(Math.abs(this.width), Math.abs(this.height)) / 2));
+          const x = Math.min(this.x, this.x + this.width);
+          const y = Math.min(this.y, this.y + this.height);
+          const w = Math.abs(this.width);
+          const h = Math.abs(this.height);
+
+          context.save();
+          context.fillStyle = this.bgColor || 'rgba(255,255,255,0.95)';
+          context.strokeStyle = this.borderColor || '#000000';
+          context.lineWidth = this.borderWidth || 2;
+
+          context.beginPath();
+          context.moveTo(x + r, y);
+          context.lineTo(x + w - r, y);
+          context.quadraticCurveTo(x + w, y, x + w, y + r);
+          context.lineTo(x + w, y + h - r);
+          context.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          context.lineTo(x + r, y + h);
+          context.quadraticCurveTo(x, y + h, x, y + h - r);
+          context.lineTo(x, y + r);
+          context.quadraticCurveTo(x, y, x + r, y);
+          context.closePath();
+          context.fill();
+          context.stroke();
+
+          // しっぽ（三角形）右下にデフォルト
+          const tailBaseX = x + w - r - 20;
+          const tailBaseY = y + h;
+          context.beginPath();
+          context.moveTo(tailBaseX, tailBaseY);
+          context.lineTo(tailBaseX + 16, tailBaseY);
+          context.lineTo(tailBaseX + 8, tailBaseY + 16);
+          context.closePath();
+          context.fill();
+          context.stroke();
+
+          // テキスト描画
+          context.fillStyle = this.textColor || '#000';
+          context.font = `${this.fontSize || 16}px ${this.fontFamily || 'Arial'}`;
+          context.textBaseline = 'top';
+          const tx = x + (this.padding || 10);
+          const ty = y + (this.padding || 10);
+          const tw = w - (this.padding || 10) * 2;
+          const lines = String(this.text || '').split('\n');
+          let cy = ty;
+          for (const line of lines) {
+            context.fillText(line, tx, cy, tw);
+            cy += (this.fontSize || 16) * 1.3;
+          }
+
+          context.restore();
+          break;
+        }
         case 'avatar':
           if (this._image) {
             context.drawImage(this._image, this.x, this.y, this.width, this.height);
