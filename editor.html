@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="editor-container">
+    <!-- ツールバー -->
+    <div class="toolbar">
+      <!-- 描画ツール -->
+      <div class="tool-group">
+        <button id="selectTool" class="tool-button" title="選択">
+          <i class="fas fa-mouse-pointer"></i>
+        </button>
+        <button id="rectangleTool" class="tool-button" title="四角形">
+          <i class="far fa-square"></i>
+        </button>
+        <button id="circleTool" class="tool-button" title="円形">
+          <i class="far fa-circle"></i>
+        </button>
+        <button id="arrowTool" class="tool-button" title="矢印">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button id="eraserTool" class="tool-button" title="消しゴム">
+          <i class="fas fa-eraser"></i>
+        </button>
+      </div>
+
+      <!-- 色選択パレット -->
+      <div class="tool-group">
+        <div class="color-palette">
+          <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000" title="赤"></div>
+          <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" title="青"></div>
+          <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" title="緑"></div>
+          <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00" title="黄"></div>
+          <div class="color-option active" style="background-color: #000000;" data-color="#000000" title="黒"></div>
+        </div>
+      </div>
+
+      <!-- サイズ設定 -->
+      <div class="tool-group">
+        <div class="size-controls">
+          <label class="size-label">線の太さ:</label>
+          <input type="range" id="lineWidth" class="size-slider" value="2" min="1" max="20">
+          <span class="size-value" id="lineWidthValue">2px</span>
+        </div>
+      </div>
+
+      <!-- 出力ボタン -->
+      <div class="tool-group">
+        <button id="copyButton" class="tool-button" title="クリップボードにコピー">
+          <i class="fas fa-copy"></i>
+        </button>
+        <button id="downloadButton" class="tool-button" title="ダウンロード">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- キャンバスコンテナ -->
+    <div class="canvas-container">
+      <canvas id="imageCanvas"></canvas>
+      <!-- リサイズハンドル -->
+      <div class="resize-handle top-left"></div>
+      <div class="resize-handle top-right"></div>
+      <div class="resize-handle bottom-left"></div>
+      <div class="resize-handle bottom-right"></div>
+    </div>
+  </div>
+
+  <script src="editor.js"></script>
+</body>
+</html> 

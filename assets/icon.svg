@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base: vivid pink rounded square -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="#ff2d96"/>
+
+  <!-- Minimal selection box (white outline) -->
+  <rect x="120" y="152" width="272" height="208" rx="24" fill="none" stroke="#ffffff" stroke-width="22"/>
+
+  <!-- Camera lens (white outline, centered) -->
+  <circle cx="256" cy="256" r="56" fill="none" stroke="#ffffff" stroke-width="20"/>
+  <!-- Simple highlight dot to suggest lens reflection -->
+  <circle cx="290" cy="230" r="8" fill="#ffffff"/>
+
+  <!-- Right-pointing arrow crossing the box and protruding outside -->
+  <g stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- shaft -->
+    <path d="M 184 256 L 420 256"/>
+    <!-- arrow head -->
+    <path d="M 420 256 L 374 232"/>
+    <path d="M 420 256 L 374 280"/>
+  </g>
+</svg>
+
+
