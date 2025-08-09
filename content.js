@@ -31,11 +31,7 @@
   function startAreaSelection() {
     if (overlayElement) return; // 多重開始防止
   // カーソルを十字に強制（!important）
-  try {
-    document.body.style.setProperty('cursor', 'crosshair', 'important');
-  } catch (_) {
-    document.body.style.cursor = 'crosshair';
-  }
+  // カーソル変更は一部サイトで副作用が出るため overlay に適用
   
     // 全画面オーバーレイを作成（イベント捕捉用）
     overlayElement = document.createElement('div');
@@ -209,11 +205,7 @@
     }
 
   // カーソルを元に戻す
-  try {
-    document.body.style.removeProperty('cursor');
-  } catch (_) {
-    document.body.style.cursor = 'default';
-  }
+  // bodyのカーソルは触らない
   }
 
 })();
