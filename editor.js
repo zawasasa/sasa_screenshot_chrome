@@ -211,7 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
       redrawCanvas();
       saveToHistory();
     } else if (currentTool && currentTool !== 'selectTool') {
-      const shape = new Shape(currentTool.replace('Tool', ''), startX, startY, currentColor, lineWidthSlider.value);
+      const toolType = currentTool.replace('Tool', '');
+      const shape = new Shape(toolType, startX, startY, currentColor, lineWidthSlider.value);
+      // avatarツールの場合はドラッグで矩形を決めて後で画像をはめる（pendingがあれば）
+      if (toolType === 'avatar' && pendingAvatarImage) {
+        shape._image = pendingAvatarImage;
+      }
       shapes.push(shape);
     }
   }
@@ -265,14 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // 新しい図形の描画
       const shape = shapes[shapes.length - 1];
       if (shape) {
-        if (shape.type === 'avatar') {
-          // 入力から追加されたavatarはドラッグ開始時に生成されるケースはないためスキップ
-          shape.width = mouseX - shape.x;
-          shape.height = mouseY - shape.y;
-        } else {
-          shape.width = mouseX - shape.x;
-          shape.height = mouseY - shape.y;
-        }
+        shape.width = mouseX - shape.x;
+        shape.height = mouseY - shape.y;
         redrawCanvas();
       }
     }
@@ -314,12 +313,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (selectedShape) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = rect.width / canvas.width;
-      const scaleY = rect.height / canvas.height;
+      const canvasRect = canvas.getBoundingClientRect();
+      const container = document.querySelector('.canvas-container');
+      const containerRect = container.getBoundingClientRect();
 
-      const x = selectedShape.x * scaleX;
-      const y = selectedShape.y * scaleY;
+      const scaleX = canvasRect.width / canvas.width;
+      const scaleY = canvasRect.height / canvas.height;
+
+      // キャンバスの表示位置（container基準）
+      const canvasOffsetLeft = canvasRect.left - containerRect.left;
+      const canvasOffsetTop = canvasRect.top - containerRect.top;
+
+      const x = canvasOffsetLeft + selectedShape.x * scaleX;
+      const y = canvasOffsetTop + selectedShape.y * scaleY;
       const width = selectedShape.width * scaleX;
       const height = selectedShape.height * scaleY;
 
