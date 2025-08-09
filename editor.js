@@ -632,18 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // バブルの配色適用（白地/黒地）
-    function applyBubbleStyle(shape) {
-      if (bubbleStyleMode === 'dark') {
-        shape.bgColor = 'rgba(0,0,0,0.9)';
-        shape.textColor = '#ffffff';
-        shape.borderColor = '#000000';
-      } else {
-        shape.bgColor = 'rgba(255,255,255,0.95)';
-        shape.textColor = '#000000';
-        shape.borderColor = '#000000';
-      }
-    }
+    // applyBubbleStyle はクラス外で定義する
 
     contains(x, y) {
       const margin = this.lineWidth + 5;  // クリック判定の余白
@@ -661,6 +650,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const top = Math.min(this.y, this.y + this.height) - margin;
       const bottom = Math.max(this.y, this.y + this.height) + margin;
       return x >= left && x <= right && y >= top && y <= bottom;
+    }
+  }
+
+  // バブルの配色適用（白地/黒地）
+  function applyBubbleStyle(shape) {
+    if (bubbleStyleMode === 'dark') {
+      shape.bgColor = 'rgba(0,0,0,0.9)';
+      shape.textColor = '#ffffff';
+      shape.borderColor = '#000000';
+    } else {
+      shape.bgColor = 'rgba(255,255,255,0.95)';
+      shape.textColor = '#000000';
+      shape.borderColor = '#000000';
     }
   }
 
