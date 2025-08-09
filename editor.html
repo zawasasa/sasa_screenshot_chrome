@@ -35,6 +35,9 @@
         <button id="avatarTool" class="tool-button" title="キャラ画像を追加">
           <i class="fas fa-image"></i>
         </button>
+        <button id="avatarPresetBtn" class="tool-button" title="スタンプ（プリセット）">
+          <i class="fas fa-stamp"></i>
+        </button>
         <button id="eraserTool" class="tool-button" title="消しゴム">
           <i class="fas fa-eraser"></i>
         </button>
@@ -75,6 +78,19 @@
     <div class="canvas-container">
       <canvas id="imageCanvas"></canvas>
       <input type="file" id="avatarInput" accept="image/*" style="display:none" />
+      <input type="file" id="avatarPresetInput" accept="image/*" style="display:none" />
+      
+      <!-- アバタープリセットパネル -->
+      <div id="avatarPanel" class="avatar-panel" style="display:none;">
+        <div class="avatar-panel-header">
+          <span>スタンプ</span>
+          <div class="avatar-panel-actions">
+            <button id="addAvatarPreset" class="panel-btn" title="追加">＋</button>
+            <button id="closeAvatarPanel" class="panel-btn" title="閉じる">×</button>
+          </div>
+        </div>
+        <div id="avatarList" class="avatar-list"></div>
+      </div>
       <!-- リサイズハンドル -->
       <div class="resize-handle top-left"></div>
       <div class="resize-handle top-right"></div>

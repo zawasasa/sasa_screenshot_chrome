@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let editingOriginalText = '';
   let bubbleStyleMode = 'light'; // 'light' = 白地黒文字, 'dark' = 黒地白文字
   let bubbleTailDir = 'down-right'; // しっぽの方向（デフォルト: 右下）
+  let avatarPresets = []; // [{id, dataUrl}]
 
   // 背景画像
   let backgroundImage = null;
@@ -162,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 画像選択時にキャンバスへ配置
   const avatarInput = document.getElementById('avatarInput');
+  const avatarPresetInput = document.getElementById('avatarPresetInput');
   if (avatarInput) {
     avatarInput.addEventListener('change', () => {
       const file = avatarInput.files && avatarInput.files[0];
@@ -189,6 +191,87 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  // プリセットUI
+  const avatarPanel = document.getElementById('avatarPanel');
+  const avatarList = document.getElementById('avatarList');
+  document.getElementById('avatarPresetBtn').addEventListener('click', async () => {
+    await loadPresets();
+    renderPresets();
+    avatarPanel.style.display = avatarPanel.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('closeAvatarPanel').addEventListener('click', () => {
+    avatarPanel.style.display = 'none';
+  });
+  document.getElementById('addAvatarPreset').addEventListener('click', () => {
+    avatarPresetInput.value = '';
+    avatarPresetInput.click();
+  });
+  if (avatarPresetInput) {
+    avatarPresetInput.addEventListener('change', async () => {
+      const file = avatarPresetInput.files && avatarPresetInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        avatarPresets.push({ id: `ap_${Date.now()}`, dataUrl });
+        await savePresets();
+        renderPresets();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function loadPresets() {
+    try {
+      const { presets } = await chrome.storage.local.get(['presets']);
+      avatarPresets = Array.isArray(presets) ? presets : [];
+    } catch (_) { avatarPresets = []; }
+  }
+  async function savePresets() {
+    try { await chrome.storage.local.set({ presets: avatarPresets }); } catch (_) {}
+  }
+  function renderPresets() {
+    if (!avatarList) return;
+    avatarList.innerHTML = '';
+    avatarPresets.forEach((p, idx) => {
+      const item = document.createElement('div');
+      item.className = 'avatar-item';
+      const img = document.createElement('img');
+      img.src = p.dataUrl;
+      const del = document.createElement('button');
+      del.textContent = '×';
+      del.className = 'del';
+      del.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        avatarPresets.splice(idx, 1);
+        await savePresets();
+        renderPresets();
+      });
+      item.appendChild(img);
+      item.appendChild(del);
+      item.addEventListener('click', () => placeAvatarFromPreset(p.dataUrl));
+      avatarList.appendChild(item);
+    });
+  }
+  function placeAvatarFromPreset(dataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      const initWidth = Math.min(canvas.width * 0.25, img.width);
+      const scale = initWidth / img.width;
+      const initHeight = img.height * scale;
+      const x = (canvas.width - initWidth) / 2;
+      const y = (canvas.height - initHeight) / 2;
+      const shape = new Shape('avatar', x, y, '#000000', 1);
+      shape.width = initWidth;
+      shape.height = initHeight;
+      shape._image = img;
+      shapes.push(shape);
+      redrawCanvas();
+      saveToHistory();
+    };
+    img.src = dataUrl;
   }
 
   // キャンバス座標→CSS座標の変換とオフセット

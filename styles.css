@@ -217,3 +217,54 @@ canvas {
 .shape-selected .resize-handle {
   display: block;
 } 
+
+/* アバタープリセットパネル */
+.avatar-panel {
+  position: absolute;
+  right: 16px;
+  top: 72px;
+  width: 260px;
+  max-height: 60vh;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  overflow: hidden;
+  z-index: 1100;
+}
+.avatar-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+.avatar-panel-actions .panel-btn {
+  margin-left: 6px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.avatar-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+}
+.avatar-item {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+.avatar-item img { width: 100%; height: 100%; object-fit: contain; background:#fafafa; }
+.avatar-item .del {
+  position: absolute; right: 4px; top: 4px;
+  background: rgba(0,0,0,0.55); color: #fff; border: none;
+  border-radius: 4px; padding: 0 4px; cursor: pointer; font-size: 12px;
+}
