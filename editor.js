@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isResizing = false;  // リサイズ中かどうか
   let resizeHandle = null;  // 現在操作中のリサイズハンドル
   let lastX, lastY;  // 前回のマウス位置
+  let pendingAvatarImage = null; // 直近に読み込んだアバター画像
 
   // 背景画像
   let backgroundImage = null;
@@ -71,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
       currentTool = button.id;
       selectedShape = null;
       updateResizeHandles();
+
+      if (currentTool === 'avatarTool') {
+        const input = document.getElementById('avatarInput');
+        input.value = '';
+        input.click();
+      }
     });
   });
 
@@ -124,6 +131,37 @@ document.addEventListener('DOMContentLoaded', () => {
       img.src = response.imageData;
     }
   });
+
+  // 画像選択時にキャンバスへ配置
+  const avatarInput = document.getElementById('avatarInput');
+  if (avatarInput) {
+    avatarInput.addEventListener('change', () => {
+      const file = avatarInput.files && avatarInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          pendingAvatarImage = img;
+          // キャンバス中央に初期配置
+          const initWidth = Math.min(canvas.width * 0.3, img.width);
+          const scale = initWidth / img.width;
+          const initHeight = img.height * scale;
+          const x = (canvas.width - initWidth) / 2;
+          const y = (canvas.height - initHeight) / 2;
+          const shape = new Shape('avatar', x, y, '#000000', 1);
+          shape.width = initWidth;
+          shape.height = initHeight;
+          shape._image = img; // メモリ上の参照
+          shapes.push(shape);
+          redrawCanvas();
+          saveToHistory();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   // 描画開始
   function startDrawing(e) {
@@ -227,8 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // 新しい図形の描画
       const shape = shapes[shapes.length - 1];
       if (shape) {
-        shape.width = mouseX - shape.x;
-        shape.height = mouseY - shape.y;
+        if (shape.type === 'avatar') {
+          // 入力から追加されたavatarはドラッグ開始時に生成されるケースはないためスキップ
+          shape.width = mouseX - shape.x;
+          shape.height = mouseY - shape.y;
+        } else {
+          shape.width = mouseX - shape.x;
+          shape.height = mouseY - shape.y;
+        }
         redrawCanvas();
       }
     }
@@ -377,6 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
           );
           context.closePath();
           context.fill();
+          break;
+        case 'avatar':
+          if (this._image) {
+            context.drawImage(this._image, this.x, this.y, this.width, this.height);
+          }
           break;
       }
     }

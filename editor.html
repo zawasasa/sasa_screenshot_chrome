@@ -23,6 +23,9 @@
         <button id="arrowTool" class="tool-button" title="矢印">
           <i class="fas fa-arrow-right"></i>
         </button>
+        <button id="avatarTool" class="tool-button" title="キャラ画像を追加">
+          <i class="fas fa-image"></i>
+        </button>
         <button id="eraserTool" class="tool-button" title="消しゴム">
           <i class="fas fa-eraser"></i>
         </button>
@@ -62,6 +65,7 @@
     <!-- キャンバスコンテナ -->
     <div class="canvas-container">
       <canvas id="imageCanvas"></canvas>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" />
       <!-- リサイズハンドル -->
       <div class="resize-handle top-left"></div>
       <div class="resize-handle top-right"></div>
