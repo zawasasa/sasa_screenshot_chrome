@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let pendingAvatarImage = null; // 直近に読み込んだアバター画像
   let editingShape = null; // 吹き出しテキスト編集中の図形
   let editingOriginalText = '';
+  let bubbleStyleMode = 'light'; // 'light' = 白地黒文字, 'dark' = 黒地白文字
 
   // 背景画像
   let backgroundImage = null;
@@ -79,6 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('avatarInput');
         input.value = '';
         input.click();
+      }
+      if (button.id === 'bubbleInvert') {
+        bubbleStyleMode = bubbleStyleMode === 'light' ? 'dark' : 'light';
+        // 既存選択バブルがあれば反映
+        if (selectedShape && selectedShape.type === 'bubble') {
+          applyBubbleStyle(selectedShape);
+          redrawCanvas();
+          saveToHistory();
+        }
       }
     });
   });
@@ -215,13 +225,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleDoubleClick(e) {
-    // バブル上でダブルクリック → テキスト編集
+    // テキスト優先フロー: バブルツール選択時は、ダブルクリックで新規テキスト入力開始 → 入力内容からバブル自動生成
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
-
+    if (currentTool === 'bubbleTool') {
+      const shape = new Shape('bubble', x, y, currentColor, 2);
+      applyBubbleStyle(shape);
+      shape.width = 200; shape.height = 80; // 初期サイズ
+      shapes.push(shape);
+      selectedShape = shape;
+      redrawCanvas();
+      openBubbleEditor(shape);
+      return;
+    }
+    // 既存バブルの編集
     for (let i = shapes.length - 1; i >= 0; i--) {
       const s = shapes[i];
       if (s.type === 'bubble' && s.contains(x, y)) {
@@ -308,7 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
         shape._image = pendingAvatarImage;
       }
       if (toolType === 'bubble') {
-        shape.text = 'Hello!';
+        applyBubbleStyle(shape);
+        shape.text = '';
       }
       shapes.push(shape);
     }
@@ -479,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // デフォルト値（吹き出し用）
       if (type === 'bubble') {
         this.text = '';
-        this.textColor = '#000000';
+        this.textColor = '#000000'; // 後でapplyBubbleStyleで上書き
         this.bgColor = 'rgba(255,255,255,0.95)';
         this.borderColor = '#000000';
         this.borderWidth = 2;
@@ -575,9 +596,13 @@ document.addEventListener('DOMContentLoaded', () => {
           context.fill();
           context.stroke();
 
-          // テキスト描画
+          // テキスト描画（サイズスケーリング）
+          const baseW = this._baseW || w;
+          const baseH = this._baseH || h;
+          const scale = Math.min(Math.max(w / baseW, h / baseH), 3);
+          const scaledFont = Math.max(10, Math.round((this.fontSize || 16) * scale));
           context.fillStyle = this.textColor || '#000';
-          context.font = `${this.fontSize || 16}px ${this.fontFamily || 'Arial'}`;
+          context.font = `${scaledFont}px ${this.fontFamily || 'Arial'}`;
           context.textBaseline = 'top';
           const tx = x + (this.padding || 10);
           const ty = y + (this.padding || 10);
@@ -586,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
           let cy = ty;
           for (const line of lines) {
             context.fillText(line, tx, cy, tw);
-            cy += (this.fontSize || 16) * 1.3;
+            cy += scaledFont * 1.3;
           }
 
           context.restore();
@@ -597,6 +622,19 @@ document.addEventListener('DOMContentLoaded', () => {
             context.drawImage(this._image, this.x, this.y, this.width, this.height);
           }
           break;
+      }
+    }
+
+    // バブルの配色適用（白地/黒地）
+    function applyBubbleStyle(shape) {
+      if (bubbleStyleMode === 'dark') {
+        shape.bgColor = 'rgba(0,0,0,0.9)';
+        shape.textColor = '#ffffff';
+        shape.borderColor = '#000000';
+      } else {
+        shape.bgColor = 'rgba(255,255,255,0.95)';
+        shape.textColor = '#000000';
+        shape.borderColor = '#000000';
       }
     }
 
