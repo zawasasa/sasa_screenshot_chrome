@@ -129,13 +129,15 @@
       const img = new Image();
       img.onload = () => {
         try {
-          const ratio = window.devicePixelRatio || 1;
+          // 実際のキャプチャ画像サイズから倍率を導出（ズーム/HiDPIに強い）
+          const ratioX = img.width / window.innerWidth;
+          const ratioY = img.height / window.innerHeight;
 
-          // 画像（可視領域）サイズに合わせてCSS→デバイスピクセルへ変換
-          const srcLeft = Math.round(leftCss * ratio);
-          const srcTop = Math.round(topCss * ratio);
-          const srcWidth = Math.round(widthCss * ratio);
-          const srcHeight = Math.round(heightCss * ratio);
+          // CSSピクセル → キャプチャ画像ピクセル
+          const srcLeft = Math.round(leftCss * ratioX);
+          const srcTop = Math.round(topCss * ratioY);
+          const srcWidth = Math.round(widthCss * ratioX);
+          const srcHeight = Math.round(heightCss * ratioY);
 
           // キャンバスのサイズを選択サイズに設定（デバイスピクセル）
           canvas.width = srcWidth;

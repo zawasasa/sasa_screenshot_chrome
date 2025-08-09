@@ -27,8 +27,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // 少し待ってからキャプチャを実行（レイアウト安定待ち）
         setTimeout(async () => {
           try {
-            // 表示部分のスクリーンショットを撮影
+            // 表示部分のスクリーンショットを撮影（エラー検知を厳しく）
             const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, captureOptions);
+            if (!dataUrl || !dataUrl.startsWith('data:image')) {
+              throw new Error('Empty capture');
+            }
             
             if (message.type === 'area') {
               // 範囲選択の場合は応答して終了
