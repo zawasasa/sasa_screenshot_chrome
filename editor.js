@@ -235,6 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const shape = new Shape('bubble', x, y, currentColor, 2);
       applyBubbleStyle(shape);
       shape.width = 200; shape.height = 80; // 初期サイズ
+      shape._baseW = 200; shape._baseH = 80; // スケール基準
+      shape.tailDir = bubbleTailDir;
       shapes.push(shape);
       selectedShape = shape;
       redrawCanvas();
@@ -592,13 +594,35 @@ document.addEventListener('DOMContentLoaded', () => {
           context.fill();
           context.stroke();
 
-          // しっぽ（三角形）右下にデフォルト
-          const tailBaseX = x + w - r - 20;
-          const tailBaseY = y + h;
+          // しっぽ（三角形）方向可変
+          const dir = this.tailDir || 'down-right';
+          let t1x, t1y, t2x, t2y, t3x, t3y;
+          const tail = 16;
+          switch (dir) {
+            case 'down-left':
+              t1x = x + r + 20; t1y = y + h;
+              t2x = t1x - tail; t2y = t1y;
+              t3x = t1x - tail/2; t3y = t1y + tail;
+              break;
+            case 'up-right':
+              t1x = x + w - r - 20; t1y = y;
+              t2x = t1x + tail; t2y = t1y;
+              t3x = t1x + tail/2; t3y = t1y - tail;
+              break;
+            case 'up-left':
+              t1x = x + r + 20; t1y = y;
+              t2x = t1x - tail; t2y = t1y;
+              t3x = t1x - tail/2; t3y = t1y - tail;
+              break;
+            default: // down-right
+              t1x = x + w - r - 20; t1y = y + h;
+              t2x = t1x + tail; t2y = t1y;
+              t3x = t1x + tail/2; t3y = t1y + tail;
+          }
           context.beginPath();
-          context.moveTo(tailBaseX, tailBaseY);
-          context.lineTo(tailBaseX + 16, tailBaseY);
-          context.lineTo(tailBaseX + 8, tailBaseY + 16);
+          context.moveTo(t1x, t1y);
+          context.lineTo(t2x, t2y);
+          context.lineTo(t3x, t3y);
           context.closePath();
           context.fill();
           context.stroke();
@@ -614,11 +638,25 @@ document.addEventListener('DOMContentLoaded', () => {
           const tx = x + (this.padding || 10);
           const ty = y + (this.padding || 10);
           const tw = w - (this.padding || 10) * 2;
-          const lines = String(this.text || '').split('\n');
+          // 文字が枠内に収まるよう簡易折返し（文字単位）+ 改行対応
+          const raw = String(this.text || '');
+          const lines = [];
+          let current = '';
+          for (const ch of raw.replace(/\r\n?|\n/g, '\n')) {
+            if (ch === '\n') { lines.push(current); current = ''; continue; }
+            const next = current + ch;
+            if (context.measureText(next).width > tw) {
+              lines.push(current);
+              current = ch;
+            } else {
+              current = next;
+            }
+          }
+          if (current) lines.push(current);
           let cy = ty;
           for (const line of lines) {
-            context.fillText(line, tx, cy, tw);
-            cy += scaledFont * 1.3;
+            context.fillText(line, tx, cy);
+            cy += scaledFont * 1.25;
           }
 
           context.restore();
