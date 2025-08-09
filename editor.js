@@ -175,12 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lastY = startY;
 
     if (currentTool === 'selectTool') {
-      // 図形の選択
-      const mouseX = startX;
-      const mouseY = startY;
-      selectedShape = null;
-      
-      // リサイズハンドルの確認
+      // まず既存の選択に対するリサイズハンドル当たり判定
       const handles = document.querySelectorAll('.resize-handle');
       for (const handle of handles) {
         const handleRect = handle.getBoundingClientRect();
@@ -192,6 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       
+      // 図形の選択（ここで必要なら選び直す）
+      const mouseX = startX;
+      const mouseY = startY;
+      selectedShape = null;
       // 図形の選択
       for (let i = shapes.length - 1; i >= 0; i--) {
         if (shapes[i].contains(mouseX, mouseY)) {
@@ -235,29 +234,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const dx = mouseX - lastX;
       const dy = mouseY - lastY;
 
-      // 図形のサイズ変更
+      // 最小サイズを確保
+      const minSize = 10;
+      let newX = selectedShape.x;
+      let newY = selectedShape.y;
+      let newW = selectedShape.width;
+      let newH = selectedShape.height;
+
       switch (resizeHandle) {
         case 'top-left':
-          selectedShape.width -= dx;
-          selectedShape.height -= dy;
-          selectedShape.x += dx;
-          selectedShape.y += dy;
-          break;
+          newW -= dx; newH -= dy; newX += dx; newY += dy; break;
         case 'top-right':
-          selectedShape.width += dx;
-          selectedShape.height -= dy;
-          selectedShape.y += dy;
-          break;
+          newW += dx; newH -= dy;            newY += dy; break;
         case 'bottom-left':
-          selectedShape.width -= dx;
-          selectedShape.height += dy;
-          selectedShape.x += dx;
-          break;
+          newW -= dx; newH += dy; newX += dx;            break;
         case 'bottom-right':
-          selectedShape.width += dx;
-          selectedShape.height += dy;
-          break;
+          newW += dx; newH += dy;                        break;
       }
+
+      // 反転防止と最小サイズ
+      if (newW < minSize) { newW = minSize; }
+      if (newH < minSize) { newH = minSize; }
+
+      selectedShape.x = newX;
+      selectedShape.y = newY;
+      selectedShape.width = newW;
+      selectedShape.height = newH;
+
       redrawCanvas();
     } else if (currentTool === 'selectTool' && selectedShape) {
       // 図形の移動
