@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let editingShape = null; // 吹き出しテキスト編集中の図形
   let editingOriginalText = '';
   let bubbleStyleMode = 'light'; // 'light' = 白地黒文字, 'dark' = 黒地白文字
+  let bubbleTailDir = 'down-right'; // しっぽの方向（デフォルト: 右下）
 
   // 背景画像
   let backgroundImage = null;
@@ -86,6 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // 既存選択バブルがあれば反映
         if (selectedShape && selectedShape.type === 'bubble') {
           applyBubbleStyle(selectedShape);
+          redrawCanvas();
+          saveToHistory();
+        }
+      } else if (button.id === 'bubbleTail') {
+        // しっぽの向きをトグル
+        const order = ['down-right', 'down-left', 'up-left', 'up-right'];
+        const idx = order.indexOf(bubbleTailDir);
+        bubbleTailDir = order[(idx + 1) % order.length];
+        if (selectedShape && selectedShape.type === 'bubble') {
+          selectedShape.tailDir = bubbleTailDir;
           redrawCanvas();
           saveToHistory();
         }
