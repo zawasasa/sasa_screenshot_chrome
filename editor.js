@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let resizeHandle = null;  // 現在操作中のリサイズハンドル
   let lastX, lastY;  // 前回のマウス位置
   let pendingAvatarImage = null; // 直近に読み込んだアバター画像
+  let editingShape = null; // 吹き出しテキスト編集中の図形
+  let editingOriginalText = '';
 
   // 背景画像
   let backgroundImage = null;
@@ -97,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('mousemove', draw);
   canvas.addEventListener('mouseup', stopDrawing);
   canvas.addEventListener('mouseleave', stopDrawing);
+  canvas.addEventListener('dblclick', handleDoubleClick);
 
   // 画像の読み込み
   chrome.runtime.sendMessage({action: 'getImageData'}, (response) => {
@@ -161,6 +164,94 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  // キャンバス座標→CSS座標の変換とオフセット
+  function getCanvasTransform() {
+    const canvasRect = canvas.getBoundingClientRect();
+    const container = document.querySelector('.canvas-container');
+    const containerRect = container.getBoundingClientRect();
+    return {
+      scaleX: canvasRect.width / canvas.width,
+      scaleY: canvasRect.height / canvas.height,
+      offsetLeft: canvasRect.left - containerRect.left,
+      offsetTop: canvasRect.top - containerRect.top,
+    };
+  }
+
+  function openBubbleEditor(shape) {
+    editingShape = shape;
+    editingOriginalText = shape.text || '';
+
+    const { scaleX, scaleY, offsetLeft, offsetTop } = getCanvasTransform();
+    const px = Math.min(shape.x, shape.x + shape.width);
+    const py = Math.min(shape.y, shape.y + shape.height);
+    const pw = Math.abs(shape.width);
+    const ph = Math.abs(shape.height);
+    const padX = (shape.padding || 10) * scaleX;
+    const padY = (shape.padding || 10) * scaleY;
+
+    textInput.style.display = 'block';
+    textInput.style.left = `${offsetLeft + px * scaleX + padX}px`;
+    textInput.style.top = `${offsetTop + py * scaleY + padY}px`;
+    textInput.style.width = `${Math.max(50, pw * scaleX - padX * 2)}px`;
+    textInput.style.height = `${Math.max(24, ph * scaleY - padY * 2)}px`;
+    textInput.style.fontSize = `${(shape.fontSize || 16) * scaleY}px`;
+    textInput.style.fontFamily = shape.fontFamily || 'Arial';
+    textInput.textContent = editingOriginalText;
+    textInput.focus();
+    selectEnd(textInput);
+  }
+
+  function commitBubbleEditor(save) {
+    if (!editingShape) return;
+    if (save) {
+      editingShape.text = (textInput.textContent || '').replace(/\r\n|\r/g, '\n');
+      redrawCanvas();
+      saveToHistory();
+    }
+    textInput.style.display = 'none';
+    editingShape = null;
+  }
+
+  function handleDoubleClick(e) {
+    // バブル上でダブルクリック → テキスト編集
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    for (let i = shapes.length - 1; i >= 0; i--) {
+      const s = shapes[i];
+      if (s.type === 'bubble' && s.contains(x, y)) {
+        selectedShape = s;
+        openBubbleEditor(s);
+        return;
+      }
+    }
+  }
+
+  // contentEditable内での確定/キャンセル
+  textInput.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' && (e.metaKey || e.ctrlKey))) {
+      e.preventDefault();
+      commitBubbleEditor(true);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      textInput.textContent = editingOriginalText;
+      commitBubbleEditor(false);
+    }
+  });
+  textInput.addEventListener('blur', () => commitBubbleEditor(true));
+
+  function selectEnd(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 
   // 描画開始
