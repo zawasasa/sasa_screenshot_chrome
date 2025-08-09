@@ -225,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadPresets() {
     try {
-      const { presets } = await chrome.storage.local.get(['presets']);
+      const result = await chrome.storage.local.get(null);
+      const presets = result && result.presets;
       avatarPresets = Array.isArray(presets) ? presets : [];
     } catch (_) { avatarPresets = []; }
   }
