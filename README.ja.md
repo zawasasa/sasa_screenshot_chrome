@@ -1,78 +1,4 @@
-# sasa_screenshot_chrome
-
-[English](#quick-screenshot-annotate-chrome-extension) | [日本語](README.ja.md)
-
-## Quick screenshot & annotate Chrome extension
-
-Capture the visible area or a selected region of any webpage, annotate with rectangle/circle/arrow, adjust color and line width, then copy to clipboard or download as PNG. Runs entirely locally (no server).
-
-### Features
-- Visible area capture from the toolbar popup
-- Area selection capture with drag-to-crop
-- Annotation tools: Select, Rectangle, Circle, Arrow, Eraser
-- Styling: Color palette and adjustable line width
-- Export: Copy to clipboard (PNG) or download
-
-### Install (development)
-1. Open `chrome://extensions`
-2. Enable Developer mode
-3. Click “Load unpacked”
-4. Select this folder (`ささっとスクショで囲もう`)
-5. Pin the extension for quick access
-
-Edge: use `edge://extensions` with the same steps.
-
-### Usage
-- From the popup:
-  - “Capture visible area” → opens editor tab with the captured image
-  - “Capture selected area” → crosshair cursor → drag to select → editor opens
-
-In the editor (`editor.html`):
-- Tools: Select / Rectangle / Circle / Arrow / Eraser
-- Color: choose from the palette (black, red, blue, green, yellow)
-- Line width: 1–20px
-- Copy: PNG to clipboard
-- Download: `screenshot-YYYYMMDD-HHMMSS.png`
-
-### Permissions (from `manifest.json`)
-- `activeTab`: capture the active tab
-- `scripting`, `tabs`: inject content scripts and control tabs
-- `clipboardWrite`: write PNG to clipboard
-- `host_permissions: <all_urls>`: run on most sites
-- `desktopCapture`: reserved for future use (currently unused)
-
-No data is sent externally. Captured image is kept in background temporarily and cleared after it’s sent to the editor.
-
-### Project structure
-```
-ささっとスクショで囲もう/
-├─ manifest.json        # MV3 manifest
-├─ background.js        # capture, temporary storage, open editor
-├─ content.js           # area selection UI & crop
-├─ popup.html / .js     # launcher (two capture modes)
-├─ editor.html / .js    # annotation editor
-└─ styles.css           # popup & editor styles
-```
-
-### How it works
-- Popup triggers `captureVisibleTab` in background (PNG)
-- For area selection, `content.js` draws a drag rectangle and crops the visible capture via Canvas
-- Background stores the image briefly → opens `editor.html` → editor fetches via `getImageData`
-- Editor draws annotations on Canvas, supports copy/download
-- Special handling around Google Docs/Sheets transforms before/after capture
-
-### Limitations
-- Not a full-page scroller. Captures visible viewport and user-selected area only
-- Cannot capture `chrome://` or extension pages (browser restriction)
-- For stability, allow access on “All sites” so content script injection works reliably
-- Handles HiDPI using `devicePixelRatio`
-
-### Troubleshooting
-- “Couldn’t start area selection” → set site access to “All sites”, then reload the page
-- Blurry/misaligned → check browser zoom (100% recommended)
-
-### License
-MIT (see `LICENSE`)
+[English](README.md) | [日本語](README.ja.md)
 
 ## ささっとスクショで囲もう
 
@@ -169,6 +95,6 @@ Edgeの場合は `edge://extensions` で同様の手順。
 ---
 
 ### ライセンス / クレジット
-- ライセンス: 未設定（必要に応じて追加してください）
-- Copyright © プロジェクトオーナー
+- ライセンス: MIT（`LICENSE` を参照）
+
 

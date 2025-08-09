@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "generate:icons": "node scripts/generate-icons.js"
+    "generate:icons": "node scripts/generate-icons.js",
+    "check:assets": "node scripts/check-assets.js"
   },
   "devDependencies": {
     "sharp": "^0.33.4"
