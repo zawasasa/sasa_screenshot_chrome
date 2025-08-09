@@ -31,7 +31,11 @@
   function startAreaSelection() {
     if (overlayElement) return; // 多重開始防止
   // カーソルを十字に強制（!important）
-  // カーソル変更は一部サイトで副作用が出るため overlay に適用
+  try {
+    document.body.style.setProperty('cursor', 'crosshair', 'important');
+  } catch (_) {
+    document.body.style.cursor = 'crosshair';
+  }
   
     // 全画面オーバーレイを作成（イベント捕捉用）
     overlayElement = document.createElement('div');
@@ -129,15 +133,13 @@
       const img = new Image();
       img.onload = () => {
         try {
-          // 実際のキャプチャ画像サイズから倍率を導出（ズーム/HiDPIに強い）
-          const ratioX = img.width / window.innerWidth;
-          const ratioY = img.height / window.innerHeight;
+          const ratio = window.devicePixelRatio || 1;
 
-          // CSSピクセル → キャプチャ画像ピクセル
-          const srcLeft = Math.round(leftCss * ratioX);
-          const srcTop = Math.round(topCss * ratioY);
-          const srcWidth = Math.round(widthCss * ratioX);
-          const srcHeight = Math.round(heightCss * ratioY);
+          // 画像（可視領域）サイズに合わせてCSS→デバイスピクセルへ変換
+          const srcLeft = Math.round(leftCss * ratio);
+          const srcTop = Math.round(topCss * ratio);
+          const srcWidth = Math.round(widthCss * ratio);
+          const srcHeight = Math.round(heightCss * ratio);
 
           // キャンバスのサイズを選択サイズに設定（デバイスピクセル）
           canvas.width = srcWidth;
@@ -207,7 +209,11 @@
     }
 
   // カーソルを元に戻す
-  // bodyのカーソルは触らない
+  try {
+    document.body.style.removeProperty('cursor');
+  } catch (_) {
+    document.body.style.cursor = 'default';
+  }
   }
 
 })();

@@ -24,14 +24,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           function: preparePageForCapture,
         });
 
-        // 少し待ってからキャプチャを実行（レイアウト安定待ち）
+        // 少し待ってからキャプチャを実行
         setTimeout(async () => {
           try {
-            // 表示部分のスクリーンショットを撮影（エラー検知を厳しく）
+            // 表示部分のスクリーンショットを撮影
             const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, captureOptions);
-            if (!dataUrl || !dataUrl.startsWith('data:image')) {
-              throw new Error('Empty capture');
-            }
             
             if (message.type === 'area') {
               // 範囲選択の場合は応答して終了
@@ -50,7 +47,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           } catch (error) {
             console.error('Capture failed:', error);
           }
-        }, 250);
+        }, 100);
       } catch (error) {
         console.error('Setup failed:', error);
       }
@@ -87,7 +84,9 @@ function preparePageForCapture() {
     y: window.scrollY
   };
 
-  // NOTE: 一部サイトで body overflow を変更すると白画面になるため変更しない
+  // スクロールを固定
+  document.body.style.overflow = 'hidden';
+  
   // Google DocsやSpreadsheetの特殊な要素を処理
   const specialElements = document.querySelectorAll('.docs-sheet-container, .grid-container');
   specialElements.forEach(el => {
@@ -102,6 +101,7 @@ function preparePageForCapture() {
 // キャプチャ後にページを元に戻す関数
 function restorePageAfterCapture() {
   // スクロールを元に戻す
+  document.body.style.overflow = '';
   if (window._originalScroll) {
     window.scrollTo(window._originalScroll.x, window._originalScroll.y);
   }

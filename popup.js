@@ -68,20 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
-       let started = false;
+      let started = false;
       for (const fid of targetFrameIds) {
         // eslint-disable-next-line no-await-in-loop
         if (await sendToFrame(fid)) { started = true; break; }
       }
-       if (!started) {
-         // 失敗時は最後の手段として content.js をアクティブフレームにだけ再注入
-         try {
-           await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
-           await sendToFrame(undefined);
-           started = true;
-         } catch (_) {}
-       }
-       if (!started) throw new Error('startAreaSelection not acknowledged');
+      if (!started) throw new Error('startAreaSelection not acknowledged');
       // 押下の感触を視覚化
       areaBtn.disabled = true;
       setTimeout(() => { areaBtn.disabled = false; }, 300);
