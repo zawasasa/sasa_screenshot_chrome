@@ -24,10 +24,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           function: preparePageForCapture,
         });
 
-        // 少し待ってからキャプチャを実行
+        // 少し待ってからキャプチャを実行（安定化のため二度撮り）
         setTimeout(async () => {
           try {
-            // 表示部分のスクリーンショットを撮影
+            // 1st shot (warm-up) → 2nd shot (use)
+            await chrome.tabs.captureVisibleTab(tab.windowId, captureOptions);
             const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, captureOptions);
             
             if (message.type === 'area') {
@@ -47,7 +48,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           } catch (error) {
             console.error('Capture failed:', error);
           }
-        }, 100);
+        }, 200);
       } catch (error) {
         console.error('Setup failed:', error);
       }
