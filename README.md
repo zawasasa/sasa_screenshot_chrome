@@ -9,7 +9,11 @@ Capture the visible area or a selected region of any webpage, annotate with rect
 ### Features
 - Visible area capture from the toolbar popup
 - Area selection capture with drag-to-crop
-- Annotation tools: Select, Rectangle, Circle, Arrow, Eraser
+- Annotation tools: Select, Rectangle, Circle, Arrow, Bubble, Avatar (stamps), Mosaic, Eraser
+- Bubble: light/dark theme toggle, tail direction toggle, auto-tail snaps toward nearest avatar, scalable tail
+- Avatar (stamps): supports transparent PNG/WebP; horizontal/vertical flip
+- Auto-select: newly created shapes/images/stamps become active immediately for move/resize
+- Conditional toolbar: buttons enable only when applicable (e.g., flip for avatar, invert/tail for bubble)
 - Styling: Color palette and adjustable line width
 - Export: Copy to clipboard (PNG) or download
 
