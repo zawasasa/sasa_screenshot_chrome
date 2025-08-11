@@ -4,14 +4,20 @@
 
 ## Quick screenshot & annotate Chrome extension
 
-Capture the visible area or a selected region of any webpage, annotate with rectangle/circle/arrow, adjust color and line width, then copy to clipboard or download as PNG. Runs entirely locally (no server).
+Capture the visible area or a selected region of any webpage, add speech bubbles and arrows, reuse avatar/icon stamps from your saved presets, then copy to clipboard or download as PNG. Works entirely locally (no server, no login).
+
+### Highlights
+- Clear, readable speech bubbles for friendly callouts
+- One‑click avatar/icon stamps from your saved presets (transparent PNG/WebP)
+- Fast flow: capture → annotate → copy or save
+- Local‑only processing: nothing is uploaded, no account required
 
 ### Features
 - Visible area capture from the toolbar popup
 - Area selection capture with drag-to-crop
 - Annotation tools: Select, Rectangle, Circle, Arrow, Bubble, Avatar (stamps), Mosaic, Eraser
 - Bubble: light/dark theme toggle, tail direction toggle, auto-tail snaps toward nearest avatar, scalable tail
-- Avatar (stamps): supports transparent PNG/WebP; horizontal/vertical flip
+- Avatar (stamps): transparent PNG/WebP, horizontal/vertical flip, quick reuse from saved presets
 - Auto-select: newly created shapes/images/stamps become active immediately for move/resize
 - Conditional toolbar: buttons enable only when applicable (e.g., flip for avatar, invert/tail for bubble)
 - Styling: Color palette and adjustable line width
@@ -80,14 +86,16 @@ MIT (see `LICENSE`)
 
 ## ささっとスクショで囲もう
 
-Webページのスクリーンショットをサッと撮って、四角・丸・矢印で囲んだり、太さや色を変えて注釈して、そのままダウンロードやクリップボードにコピーできるChrome拡張。
+Webページのスクリーンショットをサッと撮って、かわいい吹き出しや矢印で注釈し、登録済みのアバター/アイコンをスタンプとしてワンクリ貼り付け。ローカル完結で、PNG保存もクリップボードコピーもすぐにできるChrome拡張。
 
 ### 特長
 - **表示中の画面をキャプチャ**: 今見えている範囲をワンクリックで撮影
 - **ドラッグで範囲選択キャプチャ**: 必要なところだけ切り取り撮影
-- **注釈ツール**: 四角形・円・矢印・選択・消しゴム、色と線の太さを調整可能
+- **注釈ツール**: 四角形・円・矢印・吹き出し・スタンプ（画像）・モザイク・選択・消しゴム
+- **吹き出し**: 明/暗の配色切替、しっぽ方向の切替、最寄りスタンプへの自動吸着
+- **スタンプ（画像）**: 透過PNG/WebPに対応。保存したプリセットからワンクリ貼り付け
 - **出力**: PNGでダウンロード or クリップボードに直接コピー
-- **オフライン動作**: 画像や注釈はローカル処理。サーバー送信なし
+- **ローカル完結**: 画像や注釈はローカル処理。サーバー送信なし
 
 ---
 
